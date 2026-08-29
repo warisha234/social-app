@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* { box-sizing: border-box; }
+
+:root {
+  --c-app: 250 250 250;
+  --c-panel: 255 255 255;
+  --c-soft: 244 244 245;
+  --c-body: 15 15 16;
+  --c-faint: 163 163 163;
+  --c-line: 244 244 245;
+}
+
+.dark {
+  --c-app: 10 10 13;
+  --c-panel: 24 24 27;
+  --c-soft: 39 39 42;
+  --c-body: 244 244 245;
+  --c-faint: 130 130 138;
+  --c-line: 45 45 49;
+}
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: rgb(var(--c-app));
+  color: rgb(var(--c-body));
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb { background: rgb(var(--c-line)); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgb(var(--c-faint)); }
+
+.story-ring {
+  background: linear-gradient(45deg, #FCAF45, #F77737, #E1306C, #833AB4);
+  padding: 2.5px;
+  border-radius: 9999px;
+}
+
+.story-ring-seen {
+  background: #d4d4d4;
+  padding: 2.5px;
+  border-radius: 9999px;
+}
+
+.btn-gradient {
+  background: linear-gradient(45deg, #F77737, #E1306C, #833AB4);
+}
+
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fadeIn 0.25s ease-out; }
+
+@keyframes driftSlow {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(3%, -4%) scale(1.06); }
+}
+.animate-drift-slow { animation: driftSlow 14s ease-in-out infinite; }
+
+@keyframes driftSlower {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-4%, 3%) scale(1.04); }
+}
+.animate-drift-slower { animation: driftSlower 19s ease-in-out infinite; }
+
+@keyframes floatCard {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-10px) rotate(-1deg); }
+}
+.animate-float-card { animation: floatCard 6s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-drift-slow, .animate-drift-slower, .animate-float-card { animation: none; }
+}
