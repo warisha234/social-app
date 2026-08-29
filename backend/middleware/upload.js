@@ -1,27 +1,7 @@
 import multer from "multer";
 import path from "path";
-import fs from "fs";
 
-const uploadDir = path.join(process.cwd(), "uploads");
-
-let storage;
-
-try {
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-  }
-
-  storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, uploadDir),
-    filename: (req, file, cb) => {
-      const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-      cb(null, `${unique}${path.extname(file.originalname)}`);
-    },
-  });
-} catch (error) {
-  console.warn("Local upload storage is not available:", error.message);
-  storage = multer.memoryStorage();
-}
+const storage = multer.memoryStorage();
 
 function fileFilter(req, file, cb) {
   const allowed = /jpeg|jpg|png|gif|webp|mp4|mov|webm|mp3|wav|ogg|m4a/;
