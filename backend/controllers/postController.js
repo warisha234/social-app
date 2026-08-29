@@ -30,7 +30,7 @@ export async function createPost(req, res) {
     author: req.user._id,
     caption: caption || "",
     location: location || "",
-    mediaUrl: req.file.path,,
+    mediaUrl: req.file.path,
     mediaType,
   });
   await post.populate("author", "username avatar");
