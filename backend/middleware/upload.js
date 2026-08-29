@@ -1,14 +1,18 @@
 import multer from "multer";
-import path from "path";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import { v2 as cloudinary } from "cloudinary";
 
-const storage = multer.memoryStorage();
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "gramline",
+    resource_type: "auto",
+  },
+});
 
 function fileFilter(req, file, cb) {
   const allowed = /jpeg|jpg|png|gif|webp|mp4|mov|webm|mp3|wav|ogg|m4a/;
-
-  const ext = allowed.test(
-    path.extname(file.originalname).toLowerCase()
-  );
+  const ext = allowed.test(file.originalname.toLowerCase());
 
   const mime =
     file.mimetype.startsWith("image/") ||
@@ -20,10 +24,12 @@ function fileFilter(req, file, cb) {
   cb(new Error("Only image, video or audio files are allowed"));
 }
 
-export default multer({
+const upload = multer({
   storage,
   fileFilter,
   limits: {
     fileSize: 25 * 1024 * 1024,
   },
 });
+
+export default upload;
