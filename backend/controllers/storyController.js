@@ -56,7 +56,7 @@ export async function createStory(req, res) {
 
   const story = await Story.create({
     user: req.user._id,
-    mediaUrl: `/uploads/${req.file.filename}`,
+    mediaUrl: req.file.path,
     mediaType,
     expiresAt,
   });

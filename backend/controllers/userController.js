@@ -29,7 +29,7 @@ export async function updateMe(req, res) {
   if (bio !== undefined) user.bio = bio;
   if (note !== undefined) user.note = note;
   if (isPrivate !== undefined) user.isPrivate = isPrivate === "true" || isPrivate === true;
-  if (req.file) user.avatar = `/uploads/${req.file.filename}`;
+  if (req.file) user.avatar = req.file.path;
   await user.save();
   res.json(publicUser(user));
 }

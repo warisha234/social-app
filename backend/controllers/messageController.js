@@ -259,9 +259,9 @@ export async function sendMessage(req, res) {
           ? text.trim()
           : "",
 
-        mediaUrl: hasMedia
-          ? `/uploads/${req.file.filename}`
-          : null,
+       mediaUrl: hasMedia
+  ? req.file.path
+  : null,
 
         mediaType: hasMedia
           ? req.file.mimetype.startsWith(
