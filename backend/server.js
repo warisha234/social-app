@@ -5,7 +5,6 @@ import path from "path";
 import { fileURLToPath } from "url";
 import connectDB from "./config/db.js";
 
-
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
@@ -24,9 +23,12 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.get("/api/health", (req, res) => res.json({ status: "ok" }));
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok" });
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
@@ -37,19 +39,25 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/games", gameRoutes);
 app.use("/api/groups", groupRoutes);
 
-// Central error handler (catches multer errors, thrown errors, etc.)
 app.use((err, req, res, next) => {
   console.error(err);
-  res.status(err.status || 500).json({ message: err.message || "Something went wrong" });
+  res.status(err.status || 500).json({
+    message: err.message || "Something went wrong",
+  });
 });
 
 const PORT = process.env.PORT || 5000;
 
 connectDB()
   .then(() => {
-    app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+    if (process.env.NODE_ENV !== "production") {
+      app.listen(PORT, () => {
+        console.log(`Server running on http://localhost:${PORT}`);
+      });
+    }
   })
   .catch((err) => {
     console.error("Failed to connect to MongoDB:", err.message);
-    process.exit(1);
   });
+
+export default app;
