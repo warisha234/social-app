@@ -22,15 +22,18 @@ export default function Notifications() {
       .finally(() => setLoading(false));
   }, []);
 
+  // FIX: null actor wali notifications hata do
+  const validItems = items.filter((n) => n && n.actor);
+
   return (
     <div>
       <h2 className="font-display font-bold text-xl mb-6">Notifications</h2>
       {loading && <p className="text-sm text-faint">Loading...</p>}
-      {!loading && items.length === 0 && (
+      {!loading && validItems.length === 0 && (
         <p className="text-sm text-faint">You're all caught up.</p>
       )}
       <div className="flex flex-col gap-1">
-        {items.map((n) => {
+        {validItems.map((n) => {
           const cfg = ICONS[n.type] || ICONS.like;
           const Icon = cfg.icon;
           return (
