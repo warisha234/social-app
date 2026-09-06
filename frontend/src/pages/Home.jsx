@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../api/api";
 import StoriesBar from "../components/StoriesBar";
 import PostCard from "../components/PostCard";
+import SuggestedProfiles from "../components/SuggestedProfiles";
 
 export default function Home() {
   const [stories, setStories] = useState([]);
@@ -36,6 +37,9 @@ export default function Home() {
   return (
     <div className="flex flex-col gap-6">
       <StoriesBar stories={stories} onUploaded={loadStories} />
+
+
+      <SuggestedProfiles />
 
       <div className="flex items-center justify-between">
         <h2 className="font-display font-bold text-lg">Feeds</h2>

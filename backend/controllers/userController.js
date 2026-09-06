@@ -170,3 +170,21 @@ function decoratePost(post, viewer) {
     createdAt: post.createdAt,
   };
 }
+
+export async function getFollowers(req, res) {
+  const user = await User.findById(req.params.id).populate(
+    "followers",
+    "username fullName avatar"
+  );
+  if (!user) return res.status(404).json({ message: "User not found" });
+  res.json(user.followers);
+}
+
+export async function getFollowing(req, res) {
+  const user = await User.findById(req.params.id).populate(
+    "following",
+    "username fullName avatar"
+  );
+  if (!user) return res.status(404).json({ message: "User not found" });
+  res.json(user.following);
+}

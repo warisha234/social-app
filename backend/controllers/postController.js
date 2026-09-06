@@ -56,8 +56,13 @@ export async function explore(req, res) {
   const posts = await Post.find({ author: { $ne: req.user._id } })
     .populate("author", "username avatar")
     .sort({ createdAt: -1 })
-    .limit(30);
-  res.json(posts.map((p) => decoratePost(p, req.user)));
+    .limit(100);
+
+  const sorted = posts
+    .sort((a, b) => b.likes.length - a.likes.length)
+    .slice(0, 30);
+
+  res.json(sorted.map((p) => decoratePost(p, req.user)));
 }
 
 export async function deletePost(req, res) {

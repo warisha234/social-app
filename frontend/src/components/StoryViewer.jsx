@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useRef,
   useState,
 } from "react";
 
@@ -47,6 +48,8 @@ export default function StoryViewer({
   const [showViewers, setShowViewers] =
     useState(false);
 
+    const audioRef = useRef(null);
+
   const current =
     localStories[index];
 
@@ -86,6 +89,12 @@ export default function StoryViewer({
   useEffect(() => {
     if (paused) return;
 
+    const duration =
+      current.mediaType === "video" ? 15000 : 5000;
+
+    const tickMs = 100;
+    const step = 100 / (duration / tickMs);
+
     const interval = setInterval(() => {
       setProgress((p) => {
         if (p >= 100) {
@@ -93,16 +102,15 @@ export default function StoryViewer({
           return 0;
         }
 
-        return p + 100 / 50;
+        return p + step;
       });
-    }, 100);
+    }, tickMs);
 
     return () =>
       clearInterval(interval);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index, paused]);
-
   function next() {
     if (
       index <
@@ -119,6 +127,19 @@ export default function StoryViewer({
       setIndex(index - 1);
     }
   }
+
+    useEffect(() => {
+    if (!current.musicUrl) return;
+
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (paused) {
+      audio.pause();
+    } else {
+      audio.play().catch(() => {});
+    }
+  }, [paused, current.musicUrl]);
 
   async function toggleLike() {
     const res = await api.post(
@@ -299,6 +320,7 @@ export default function StoryViewer({
             )}
             autoPlay
             playsInline
+             onEnded={next}
             className="w-full h-full object-cover"
           />
         ) : (
@@ -310,6 +332,28 @@ export default function StoryViewer({
             alt=""
           />
         )}
+
+                {/* MUSIC */}
+        {current.musicUrl && (
+          <audio
+            key={current._id}
+            ref={audioRef}
+            src={mediaUrl(current.musicUrl)}
+            autoPlay
+            loop
+          />
+        )}
+
+        {/* CAPTION */}
+        {current.caption && (
+          <div className="absolute left-0 right-0 bottom-24 px-4 z-20 text-center">
+            <p className="inline-block bg-black/40 backdrop-blur-sm text-white text-sm px-3 py-2 rounded-xl max-w-[85%]">
+              {current.caption}
+            </p>
+          </div>
+        )}
+
+    
 
         {/* OWNER VIEW COUNT */}
         {isOwner && (

@@ -1,4 +1,4 @@
-import { Plus, Image, Video, Type, X, Upload } from "lucide-react";
+import { Plus, Image, Video, Type, X, Upload, Music, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/api";
@@ -9,6 +9,7 @@ export default function StoriesBar({ stories, onUploaded }) {
   const { user } = useAuth();
 
   const fileRef = useRef(null);
+  const musicRef = useRef(null);
 
   const [viewerIndex, setViewerIndex] = useState(null);
   const [showComposer, setShowComposer] = useState(false);
@@ -16,6 +17,9 @@ export default function StoriesBar({ stories, onUploaded }) {
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(null);
+
+  const [caption, setCaption] = useState("");
+  const [musicFile, setMusicFile] = useState(null);
 
   const [textStory, setTextStory] = useState("");
   const [textBg, setTextBg] = useState("#111827");
@@ -33,12 +37,23 @@ export default function StoriesBar({ stories, onUploaded }) {
     "#0891b2",
   ];
 
+  // ---- FIX: null/invalid user wali stories hatao, aur duplicate _id bhi hatao ----
+  const seenIds = new Set();
+  const validStories = (stories || []).filter((s) => {
+    if (!s || !s.user || !s._id) return false;
+    if (seenIds.has(s._id)) return false; // duplicate id skip
+    seenIds.add(s._id);
+    return true;
+  });
+
   function openComposer() {
     setShowComposer(true);
     setMode("media");
     setSelectedFile(null);
     setPreview(null);
     setTextStory("");
+    setCaption("");
+    setMusicFile(null);
   }
 
   function closeComposer() {
@@ -53,6 +68,8 @@ export default function StoriesBar({ stories, onUploaded }) {
 
     setPreview(null);
     setTextStory("");
+    setCaption("");
+    setMusicFile(null);
   }
 
   function chooseMedia(type) {
@@ -97,6 +114,20 @@ export default function StoriesBar({ stories, onUploaded }) {
     e.target.value = "";
   }
 
+  function handleMusic(e) {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    if (!file.type.startsWith("audio/")) {
+      alert("Please select an audio file.");
+      return;
+    }
+
+    setMusicFile(file);
+    e.target.value = "";
+  }
+
   async function uploadStory(file, type) {
     setUploading(true);
 
@@ -104,6 +135,14 @@ export default function StoriesBar({ stories, onUploaded }) {
       const form = new FormData();
 
       form.append("media", file);
+
+      if (caption.trim()) {
+        form.append("caption", caption.trim());
+      }
+
+      if (musicFile) {
+        form.append("music", musicFile);
+      }
 
       await api.post("/stories", form, {
         headers: {
@@ -389,7 +428,7 @@ export default function StoriesBar({ stories, onUploaded }) {
         </div>
 
         {/* STORIES */}
-        {stories.map((s, i) => (
+        {validStories.map((s, i) => (
           <div
             key={s._id}
             className="flex flex-col items-center gap-1.5 shrink-0"
@@ -405,13 +444,13 @@ export default function StoriesBar({ stories, onUploaded }) {
               }
             >
               <img
-  src={
-  mediaUrl(s.user.avatar) ||
-  `https://api.dicebear.com/7.x/avataaars/svg?seed=${s.user.username}`
-}
-  className="w-14 h-14 rounded-full object-cover border-2 border-white"
-  alt={s.user.username}
-/>
+                src={
+                  mediaUrl(s.user.avatar) ||
+                  `https://api.dicebear.com/7.x/avataaars/svg?seed=${s.user.username}`
+                }
+                className="w-14 h-14 rounded-full object-cover border-2 border-white"
+                alt={s.user.username}
+              />
             </button>
 
             <span className="text-xs text-body max-w-[64px] truncate">
@@ -422,7 +461,7 @@ export default function StoriesBar({ stories, onUploaded }) {
 
         {viewerIndex !== null && (
           <StoryViewer
-            stories={stories}
+            stories={validStories}
             startIndex={viewerIndex}
             onClose={() =>
               setViewerIndex(null)
@@ -519,12 +558,56 @@ export default function StoriesBar({ stories, onUploaded }) {
               </div>
             )}
 
+            {/* CAPTION + MUSIC */}
+            {preview && mode !== "text" && (
+              <div className="px-4 mt-3 flex flex-col gap-3">
+                <textarea
+                  value={caption}
+                  onChange={(e) => setCaption(e.target.value)}
+                  maxLength={200}
+                  placeholder="Add a caption..."
+                  rows={2}
+                  className="w-full border border-neutral-200 dark:border-neutral-700 rounded-xl p-3 bg-transparent text-body text-sm outline-none focus:border-brand-pink resize-none"
+                />
+
+                <input
+                  ref={musicRef}
+                  type="file"
+                  accept="audio/*"
+                  hidden
+                  onChange={handleMusic}
+                />
+
+                {musicFile ? (
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-neutral-200 dark:border-neutral-700">
+                    <Music size={16} className="text-brand-pink shrink-0" />
+                    <span className="text-sm truncate flex-1">
+                      {musicFile.name}
+                    </span>
+                    <button
+                      onClick={() => setMusicFile(null)}
+                      className="text-faint hover:text-red-500 p-1"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => musicRef.current?.click()}
+                    className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-dashed border-neutral-300 dark:border-neutral-700 text-sm text-faint hover:border-brand-pink hover:text-brand-pink transition"
+                  >
+                    <Music size={16} />
+                    Add music
+                  </button>
+                )}
+              </div>
+            )}
+
             {/* TEXT STORY */}
             {mode === "text" && (
               <div className="px-4">
-              
                 <div
-  className="h-[300px] rounded-xl flex items-center justify-center p-6"
+                  className="h-[300px] rounded-xl flex items-center justify-center p-6"
                   style={{
                     backgroundColor: textBg,
                   }}

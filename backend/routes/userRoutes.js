@@ -14,6 +14,8 @@ import {
   userPosts,
   userReposts,
   userSaved,
+   getFollowers,
+  getFollowing,
 } from "../controllers/userController.js";
 
 const router = Router();
@@ -34,5 +36,8 @@ router.post("/:id/follow", toggleFollow);
 router.get("/:id/posts", userPosts);
 router.get("/:id/reposts", userReposts);
 router.get("/:id/saved", userSaved);
+
+router.get("/:id/followers", getFollowers);
+router.get("/:id/following", getFollowing);
 
 export default router;

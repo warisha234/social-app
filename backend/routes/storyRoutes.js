@@ -15,7 +15,14 @@ const router = Router();
 router.use(auth);
 
 router.get("/feed", storyFeed);
-router.post("/", upload.single("media"), createStory);
+router.post(
+  "/",
+  upload.fields([
+    { name: "media", maxCount: 1 },
+    { name: "music", maxCount: 1 },
+  ]),
+  createStory
+);
 router.post("/:id/view", viewStory);
 router.post("/:id/like", toggleStoryLike);
 router.post("/:id/reply", replyToStory);

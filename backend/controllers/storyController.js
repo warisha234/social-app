@@ -1,6 +1,7 @@
 import Story from "../models/Story.js";
 import Message from "../models/Message.js";
 import Notification from "../models/Notification.js";
+import Post from "../models/Post.js";
 
 function decorate(story, viewerId) {
   const ownerId = story.user?._id || story.user;
@@ -13,6 +14,8 @@ function decorate(story, viewerId) {
     user: story.user,
     mediaUrl: story.mediaUrl,
     mediaType: story.mediaType,
+    caption: story.caption || "",
+    musicUrl: story.musicUrl || "",
     createdAt: story.createdAt,
     expiresAt: story.expiresAt,
 
@@ -40,15 +43,33 @@ function decorate(story, viewerId) {
 }
 
 export async function createStory(req, res) {
-  if (!req.file) {
+  let mediaUrl;
+  let mediaType;
+
+  const mediaFile = req.files?.media?.[0];
+  const musicFile = req.files?.music?.[0];
+
+  if (mediaFile) {
+    mediaUrl = mediaFile.path;
+    mediaType = mediaFile.mimetype.startsWith("video")
+      ? "video"
+      : "image";
+  } else if (req.body.postId) {
+    const post = await Post.findById(req.body.postId);
+
+    if (!post) {
+      return res.status(404).json({
+        message: "Post not found",
+      });
+    }
+
+    mediaUrl = post.mediaUrl;
+    mediaType = post.mediaType;
+  } else {
     return res.status(400).json({
-      message: "Media file is required",
+      message: "Media file or postId is required",
     });
   }
-
-  const mediaType = req.file.mimetype.startsWith("video")
-    ? "video"
-    : "image";
 
   const expiresAt = new Date(
     Date.now() + 24 * 60 * 60 * 1000
@@ -56,8 +77,10 @@ export async function createStory(req, res) {
 
   const story = await Story.create({
     user: req.user._id,
-    mediaUrl: req.file.path,
+    mediaUrl,
     mediaType,
+    caption: req.body.caption || "",
+    musicUrl: musicFile ? musicFile.path : "",
     expiresAt,
   });
 

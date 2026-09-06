@@ -24,6 +24,9 @@ export default function Explore() {
     return () => clearTimeout(t);
   }, [query]);
 
+  // Sirf wo posts rakho jinka author valid hai (null author wale skip)
+  const validPosts = posts.filter((p) => p && p.author);
+
   return (
     <div>
       <div className="relative mb-6">
@@ -70,7 +73,7 @@ export default function Explore() {
 
       <h3 className="text-sm font-semibold text-faint mb-3">Explore</h3>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-        {posts.map((p) => (
+        {validPosts.map((p) => (
           <Link key={p._id} to={`/profile/${p.author.username}`} className="aspect-square rounded-xl overflow-hidden bg-soft">
             {p.mediaType === "video" ? (
               <video src={mediaUrl(p.mediaUrl)} className="w-full h-full object-cover" muted />
@@ -79,7 +82,7 @@ export default function Explore() {
             )}
           </Link>
         ))}
-        {posts.length === 0 && (
+        {validPosts.length === 0 && (
           <p className="text-sm text-faint col-span-full">No posts to explore yet.</p>
         )}
       </div>

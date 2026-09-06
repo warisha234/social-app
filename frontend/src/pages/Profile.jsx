@@ -5,6 +5,7 @@ import api from "../api/api";
 import { useAuth } from "../context/AuthContext";
 import PostCard from "../components/PostCard";
 import EditProfileModal from "../components/EditProfileModal";
+import FollowListModal from "../components/FollowListModal";
 import { mediaUrl } from "../utils/media";
 
 const TABS = [
@@ -22,6 +23,7 @@ export default function Profile() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editOpen, setEditOpen] = useState(false);
+   const [followModal, setFollowModal] = useState(null);
 
   const isMe = profile?._id === me?._id;
 
@@ -110,10 +112,14 @@ export default function Profile() {
           </div>
           <p className="text-faint text-sm mb-3">{profile.fullName}</p>
 
-          <div className="flex gap-6 mb-3 text-sm">
+                   <div className="flex gap-6 mb-3 text-sm">
             <span><b>{profile.postCount || 0}</b> Posts</span>
-            <span><b>{profile.followerCount || 0}</b> Followers</span>
-            <span><b>{profile.followingCount || 0}</b> Following</span>
+            <button onClick={() => setFollowModal("followers")} className="hover:underline">
+              <b>{profile.followerCount || 0}</b> Followers
+            </button>
+            <button onClick={() => setFollowModal("following")} className="hover:underline">
+              <b>{profile.followingCount || 0}</b> Following
+            </button>
           </div>
 
           {profile.bio && <p className="text-sm text-body leading-relaxed">{profile.bio}</p>}
@@ -155,6 +161,14 @@ export default function Profile() {
             updateUser(patch);
             setEditOpen(false);
           }}
+          
+        />
+      )}
+       {followModal && (
+        <FollowListModal
+          userId={profile._id}
+          type={followModal}
+          onClose={() => setFollowModal(null)}
         />
       )}
     </div>
