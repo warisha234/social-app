@@ -84,6 +84,10 @@ export default function PostCard({ post, onChange }) {
     return () => clearInterval(interval);
   }, []);
 
+  // FIX: agar author null hai (delete ho chuka user) to card render mat karo
+  // Ye hooks ke BAAD hai isliye React hooks rule violate nahi hota
+  if (!post || !post.author) return null;
+
   async function toggleLike() {
     setLiked((v) => !v);
     setLikeCount((c) => (liked ? c - 1 : c + 1));
@@ -308,5 +312,3 @@ export default function PostCard({ post, onChange }) {
     </div>
   );
 }
-
-

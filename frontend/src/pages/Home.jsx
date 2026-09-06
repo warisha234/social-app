@@ -34,10 +34,12 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
+  // FIX: null author wale posts hata do taake crash na ho
+  const validPosts = posts.filter((p) => p && p.author);
+
   return (
     <div className="flex flex-col gap-6">
       <StoriesBar stories={stories} onUploaded={loadStories} />
-
 
       <SuggestedProfiles />
 
@@ -59,14 +61,14 @@ export default function Home() {
       </div>
 
       {loading && <p className="text-sm text-faint">Loading feed...</p>}
-      {!loading && posts.length === 0 && (
+      {!loading && validPosts.length === 0 && (
         <div className="text-center py-16 text-faint text-sm">
           No posts yet — follow people or create your first post.
         </div>
       )}
 
       <div className="flex flex-col gap-5">
-        {posts.map((post) => (
+        {validPosts.map((post) => (
           <PostCard key={post._id} post={post} onChange={loadPosts} />
         ))}
       </div>
